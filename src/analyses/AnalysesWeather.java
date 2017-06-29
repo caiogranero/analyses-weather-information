@@ -11,13 +11,20 @@ import org.apache.hadoop.util.*;
 
 public class AnalysesWeather extends Configured implements Tool {
 	
-	private int agg, dateTo, dateFrom;
-	private int[] metric;
+	private int metric, dateTo, dateFrom;
+	private int[] aggregation;
 	
-	public AnalysesWeather(int dateTo, int dateFrom, int[] metric, int agg){
+	/**
+	 * 
+	 * @param dateTo { First year we need to process }
+	 * @param dateFrom { Last year we need to process }
+	 * @param metric { Metric we need to use to calculate statistics }
+	 * @param aggregation { Parameter we need to use to group result }
+	 */
+	public AnalysesWeather(int dateTo, int dateFrom, int metric, int[] aggregation){
 		this.dateTo = dateTo;
 		this.dateFrom = dateFrom;
-		this.agg = agg;
+		this.aggregation = aggregation;
 		this.metric = metric;
 	}
 	
@@ -32,9 +39,9 @@ public class AnalysesWeather extends Configured implements Tool {
         conf.setOutputValueClass(DoubleWritable.class);
         
         //Send some variable to map function
-        conf.setInt("aggColumn", getAgg());
-        conf.setInt("iMetricPosition", getMetric()[0]);
-        conf.setInt("fMetricPosition", getMetric()[1]);
+        conf.setInt("metricPosition", getMetric());
+        conf.setInt("aggregationFirstPosition", getAggregation()[0]);
+        conf.setInt("aggregationLastPosition", getAggregation()[1]);
         
         //Providing the mapper and reducer class names
         conf.setMapperClass(AnalysesWeatherMap.class);
@@ -43,6 +50,7 @@ public class AnalysesWeather extends Configured implements Tool {
         //Set hadoop input path
         String root = "/usr/local/hadoop/input/";
         
+        //Set hadoop output path
         Path out = new Path("/usr/local/hadoop/output");
         
         FileSystem hdfs = FileSystem.get(conf);
@@ -53,7 +61,7 @@ public class AnalysesWeather extends Configured implements Tool {
 	    //Define output folder
         FileOutputFormat.setOutputPath(conf, out);
         
-	    //Read all defined years folder
+	    //Read all years folder
 	    for(int i = getDateTo(); i <= getDateFrom(); i++){
 	    	FileInputFormat.addInputPath(conf, new Path(root+i+"/*"));
 	    }
@@ -62,11 +70,11 @@ public class AnalysesWeather extends Configured implements Tool {
         return 0;
     }
 
-	public int getAgg() {
-		return agg;
+	public int[] getAggregation() {
+		return aggregation;
 	}
 
-	public int[] getMetric() {
+	public int getMetric() {
 		return metric;
 	}
 

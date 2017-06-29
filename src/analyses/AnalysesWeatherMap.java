@@ -13,14 +13,14 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 	private DoubleWritable metric = new DoubleWritable();
     private Text aggregation = new Text();
     private boolean isHeader = true;
-    private int aggColumn, iMetricPosition, fMetricPosition;
+    private int metricPosition, aggregationFirstPosition, aggregationLastPosition;
     
     @Override
     public void configure(JobConf job) {
         super.configure(job);
-        setAggColumn(job.getInt("aggColumn", -1));
-        setiMetricPosition(job.getInt("iMetricPosition", -1));
-        setfMetricPosition(job.getInt("fMetricPosition", -1));
+        setMetricPosition(job.getInt("metricPosition", -1));
+        setAggregationFirstPosition(job.getInt("aggregationFirstPosition", -1));
+        setAggregationLastPosition(job.getInt("aggregationLastPosition", -1));
     }
     
     public double checkMissing(Double value){
@@ -38,22 +38,25 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
         String line = value.toString();
         StringTokenizer tokenizer = new StringTokenizer(line);
         
+        //Don't read the first line. We don't need header
         if(!isHeader()){
-	        int i = 0;
+	        int iColumn = 0;
 	        
 	        //Read each column finding what user choose before execute	
 	        while (tokenizer.hasMoreTokens()) {
 	        	String token = tokenizer.nextToken();
 	        	
-	        	if(i == YEARMODA){ //
-	        		setAggregation(token.substring(getiMetricPosition(), getfMetricPosition()));
+	        	//Check if the current column index are the date column
+	        	if(iColumn == YEARMODA){ //
+	        		setAggregation(token.substring(getAggregationFirstPosition(), getAggregationLastPosition()));
 	        	}
 	        	
-	        	if(i == getAggColumn()){
+	        	//Check if the current column index are the param column
+	        	if(iColumn == getMetricPosition()){
 	        		setMetric(checkMissing(Double.parseDouble(token)));
 	        	}
 	        	
-	            i++;
+	        	iColumn++;
 	        }
 	        
 	        output.collect(getAggregation(), getMetric());
@@ -87,27 +90,28 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 		this.isHeader = isHeader;
 	}
 
-	public int getAggColumn() {
-		return aggColumn;
+	public int getAggregationFirstPosition() {
+		return aggregationFirstPosition;
 	}
 
-	public void setAggColumn(int aggColumn) {
-		this.aggColumn = aggColumn;
+	public void setAggregationFirstPosition(int aggregationFirstPosition) {
+		this.aggregationFirstPosition = aggregationFirstPosition;
 	}
 
-	public int getiMetricPosition() {
-		return iMetricPosition;
+	public int getAggregationLastPosition() {
+		return aggregationLastPosition;
 	}
 
-	public void setiMetricPosition(int iMetricPosition) {
-		this.iMetricPosition = iMetricPosition;
+	public void setAggregationLastPosition(int aggregationLastPosition) {
+		this.aggregationLastPosition = aggregationLastPosition;
 	}
 
-	public int getfMetricPosition() {
-		return fMetricPosition;
+	public int getMetricPosition() {
+		return metricPosition;
 	}
 
-	public void setfMetricPosition(int fMetricPosition) {
-		this.fMetricPosition = fMetricPosition;
+	public void setMetricPosition(int metricPosition) {
+		this.metricPosition = metricPosition;
 	}
+
 }
