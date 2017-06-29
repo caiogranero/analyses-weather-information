@@ -31,9 +31,6 @@ public class Main {
 				try {
 					Main window = new Main(args);
 					window.frame.setVisible(true);
-					
-					
-				    
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -151,9 +148,9 @@ public class Main {
 				int dateTo = -1;
 				int dateFrom = -1;
 				int res;
-				int agg = -1;
+				int metric = -1;
 				
-				int[] metric = new int[2];
+				int[] aggregation = new int[2];
 				
 				try{
 					dateTo = Integer.parseInt(txtAnoInicial.getText());
@@ -164,41 +161,41 @@ public class Main {
 				}
 				
 				if(rdbtnTemperatura.isSelected()){
-					agg = 3;
+					metric = 3;
 				} else if(rdbtnTemperaturaMxima.isSelected()){
-					agg = 14;
+					metric = 14;
 				} else if(rdbtnTemperaturaMnima.isSelected()){
-					agg = 15;
+					metric = 15;
 				} else if(rdbtnVisibilidade.isSelected()){
-					agg = 11;
+					metric = 11;
 				} else if(rdbtnSLP.isSelected()){
-					agg = 7;
+					metric = 7;
 				} else if(rdbtnWDSP.isSelected()){
-					agg = 13;
+					metric = 13;
 				} else {
 					JOptionPane.showMessageDialog(btnGerarRelatrio, "Parece que você não preencheu um atributo de métrica, selecione um.","Atenção!", 0);
 					return;
 				}
 				
 				if(rdbtnDia.isSelected()){
-					metric[0] = 6;
-					metric[1] = 8;
+					aggregation[0] = 6;
+					aggregation[1] = 8;
 				} else if(rdbtnDiams.isSelected()){
-					metric[0] = 4;
-					metric[1] = 8;
+					aggregation[0] = 4;
+					aggregation[1] = 8;
 				} else if(rdbtnMs.isSelected()){
-					metric[0] = 6;
-					metric[1] = 8;
+					aggregation[0] = 6;
+					aggregation[1] = 8;
 				} else if(rdbtnAno.isSelected()){
-					metric[0] = 0;
-					metric[1] = 4;
+					aggregation[0] = 0;
+					aggregation[1] = 4;
 				} else {
 					JOptionPane.showMessageDialog(btnGerarRelatrio, "Parece que você não preencheu um parametro de agregação, selecione um.","Atenção!", 0);
 					return;
 				}
 				
 				try {
-					res = ToolRunner.run(new Configuration(), new AnalysesWeather(dateTo, dateFrom, metric, agg), args);
+					res = ToolRunner.run(new Configuration(), new AnalysesWeather(dateTo, dateFrom, metric, aggregation), args);
 					System.exit(res);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
