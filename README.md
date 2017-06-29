@@ -22,8 +22,8 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 
 ## To-do List
 
-- [ ] Criar interface de usuário
-- [ ] Preparar o código para o usuário selecionar o formato de data que será agrupado (Ano > Mês > Dia)
+- [x] Criar interface de usuário
+- [x] Preparar o código para o usuário selecionar o formato de data que será agrupado (Ano > Mês > Dia)
 - [ ] Criar outras funções Reduce, sendo uma para cada função estatística (Média, Mediana, Whatever)
 - [ ] Implementar o método dos mínimos quadrados
 - [ ] Fazer validações de exceções 
