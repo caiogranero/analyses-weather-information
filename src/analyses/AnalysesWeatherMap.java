@@ -13,12 +13,14 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 	private DoubleWritable metric = new DoubleWritable();
     private Text aggregation = new Text();
     private boolean isHeader = true;
-    private int aggColumn;
+    private int aggColumn, iMetricPosition, fMetricPosition;
     
     @Override
     public void configure(JobConf job) {
         super.configure(job);
         setAggColumn(job.getInt("aggColumn", -1));
+        setiMetricPosition(job.getInt("iMetricPosition", -1));
+        setfMetricPosition(job.getInt("fMetricPosition", -1));
     }
     
     public double checkMissing(Double value){
@@ -44,7 +46,7 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 	        	String token = tokenizer.nextToken();
 	        	
 	        	if(i == YEARMODA){ //
-	        		setAggregation(token.substring(0, 4));
+	        		setAggregation(token.substring(getiMetricPosition(), getfMetricPosition()));
 	        	}
 	        	
 	        	if(i == getAggColumn()){
@@ -91,5 +93,21 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 
 	public void setAggColumn(int aggColumn) {
 		this.aggColumn = aggColumn;
+	}
+
+	public int getiMetricPosition() {
+		return iMetricPosition;
+	}
+
+	public void setiMetricPosition(int iMetricPosition) {
+		this.iMetricPosition = iMetricPosition;
+	}
+
+	public int getfMetricPosition() {
+		return fMetricPosition;
+	}
+
+	public void setfMetricPosition(int fMetricPosition) {
+		this.fMetricPosition = fMetricPosition;
 	}
 }

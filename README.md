@@ -26,8 +26,8 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 
 ## To-do List
 
-- [ ] Criar interface de usuário
-- [ ] Preparar o código para o usuário selecionar o formato de data que será agrupado (Ano > Mês > Dia)
+- [x] Criar interface de usuário
+- [x] Preparar o código para o usuário selecionar o formato de data que será agrupado (Ano > Mês > Dia)
 - [ ] Criar outras funções Reduce, sendo uma para cada função estatística (Média, Mediana, Whatever)
 - [ ] Implementar o método dos mínimos quadrados
 - [ ] Fazer validações de exceções 
@@ -37,4 +37,7 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 ## Outras coisas
 
 * Listar todas as pastas dentro do input `$HADOOP_HOME/bin/hadoop fs -ls /usr/local/hadoop/input`
-
+* http://junaedhalim.blogspot.com.br/2009/12/how-to-embed-jfreechart-in-jpanel.html
+* http://www.jfree.org/jfreechart/download.html
+* https://www.javatpoint.com/java-jbutton
+* https://stackoverflow.com/questions/7945565/add-a-jfreechart-in-to-jpanel

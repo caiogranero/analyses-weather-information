@@ -11,64 +11,15 @@ import org.apache.hadoop.util.*;
 
 public class AnalysesWeather extends Configured implements Tool {
 	
-	private static int agg, metric, dateTo, dateFrom;
+	private int agg, dateTo, dateFrom;
+	private int[] metric;
 	
-	/**
-	 * Return corresponding position from dataset by selected aggregation parameter 
-	 * @param insertedValue
-	 * @return
-	 */
-	public int getAggColumnIndex(int insertedValue){
-		switch(insertedValue){
-			case 1: //TEMP
-				return 3;
-			case 2: //MAX
-				return 14;
-			case 3: //MIN
-				return 15;
-			case 4: //VISIB
-				return 11;
-			case 5: //WDSP
-				return 13;
-			case 6: //SLP
-				return 7;
-			default:
-				return -1;
-		}
+	public AnalysesWeather(int dateTo, int dateFrom, int[] metric, int agg){
+		this.dateTo = dateTo;
+		this.dateFrom = dateFrom;
+		this.agg = agg;
+		this.metric = metric;
 	}
-	
-	public static void askYearRange(Scanner sc){
-    	System.out.print("Por favor, digite o range de anos que você deseja analisar no formato: 1990/2017. \n");
-        String yearRange = sc.next();
-        
-        try{
-        	dateTo = Integer.parseInt(yearRange.substring(0, 4));
-        	dateFrom = Integer.parseInt(yearRange.substring(5, 9));
-        } catch(Exception e){
-        	System.out.println("Ops, parece que você errou, mas não se desespere.\n");
-        	askYearRange(sc);
-        }
-    }
-    
-    public static void askAggregation(Scanner sc){
-    	System.out.println("Por favor, selecione qual o atributo que você deseja que seja feita a agregação.\n");
-    	
-        System.out.print("------------------------------\n");
-        System.out.print("1. Temperatura\n");
-        System.out.print("2. Temperatura Máxima\n");
-        System.out.print("3. Temperatura Mínima\n");
-        System.out.print("4. Visibilidade\n");
-        System.out.print("5. WDSP\n");
-        System.out.print("6. SLP\n");
-        System.out.print("------------------------------\n");
-        
-        try{
-        	agg = sc.nextInt();
-        } catch(NumberFormatException e){
-        	System.out.println("Ops, parece que você errou, mas não se desespere.\n");
-        	askAggregation(sc);
-        }        
-    }
 	
     public int run(String[] args) throws Exception {
     	
@@ -81,7 +32,9 @@ public class AnalysesWeather extends Configured implements Tool {
         conf.setOutputValueClass(DoubleWritable.class);
         
         //Send some variable to map function
-        conf.setInt("aggColumn", getAggColumnIndex(agg));
+        conf.setInt("aggColumn", getAgg());
+        conf.setInt("iMetricPosition", getMetric()[0]);
+        conf.setInt("fMetricPosition", getMetric()[1]);
         
         //Providing the mapper and reducer class names
         conf.setMapperClass(AnalysesWeatherMap.class);
@@ -101,25 +54,27 @@ public class AnalysesWeather extends Configured implements Tool {
         FileOutputFormat.setOutputPath(conf, out);
         
 	    //Read all defined years folder
-	    for(int i = dateTo; i <= dateFrom; i++){
+	    for(int i = getDateTo(); i <= getDateFrom(); i++){
 	    	FileInputFormat.addInputPath(conf, new Path(root+i+"/*"));
 	    }
 	   
         JobClient.runJob(conf);
         return 0;
     }
-    
-    public static void main(String[] args) throws Exception {
-        Scanner sc = new Scanner(System.in);
-        
-        System.out.println("Bem vindo.\n");
-                
-        askYearRange(sc);
-        askAggregation(sc);
-        metric = 1;
-        
-        
-        int res = ToolRunner.run(new Configuration(), new AnalysesWeather(), args);
-        System.exit(res);
-    }
+
+	public int getAgg() {
+		return agg;
+	}
+
+	public int[] getMetric() {
+		return metric;
+	}
+
+	public int getDateTo() {
+		return dateTo;
+	}
+
+	public int getDateFrom() {
+		return dateFrom;
+	}
 }
