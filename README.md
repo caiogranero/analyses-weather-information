@@ -10,15 +10,19 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 
 ## Como rodar
 
-1. Criar uma pasta no hdfs para inserir os inputs: `$HADOOP_HOME/bin/hadoop dfs -mkdir -p /usr/local/hadoop/input` 
+1. Primeiro precisa formatar o namenode: `$HADOOP_HOME/bin/hadoop namenode -format`
 
-2. Copia os arquivos de um path local para o hdfs: `$HADOOP_HOME/bin/hadoop dfs -copyFromLocal /home/caiogranero/workspace/analyses-weather-information/input-teste/* /usr/local/hadoop/input` 
+2. Depois, iniciar o start-dfs.sh: `$HADOOP_HOME/sbin/start-dfs.sh`
 
-3. Executar .jar `$HADOOP_HOME/bin/hadoop jar /home/caiogranero/workspace/analyses-weather-information/analyses-weather.jar`
+3. Para criar uma pasta no hdfs para inserir os inputs: `dfs -mkdir -p /usr/local/hadoop/input` 
 
-4. Visualizar os arquivos de output: `$HADOOP_HOME/bin/hdfs dfs -cat /usr/local/hadoop/output/part-00000`
+4. Copia os arquivos de um path local para o hdfs: `-copyFromLocal /home/caiogranero/workspace/analyses-weather-information/input-teste/* /usr/local/hadoop/input` 
 
-5. Para gerar um  novo .jar com suas alterações, vá no Eclipse -> Botão direito no projeto -> Export -> Executable Jar
+5. Executar .jar `$HADOOP_HOME/bin/hadoop jar /home/caiogranero/workspace/analyses-weather-information/analyses-weather.jar`
+
+6. Visualizar os arquivos de output: `$HADOOP_HOME/bin/hdfs dfs -cat /usr/local/hadoop/output/part-00000`
+
+7. Para gerar um  novo .jar com suas alterações, vá no Eclipse -> Botão direito no projeto -> Export -> Executable Jar
 
 ## To-do List
 
