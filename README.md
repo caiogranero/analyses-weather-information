@@ -10,9 +10,9 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 
 ## Como rodar
 
-1. Criar uma pasta no hdfs para inserir os inputs: `dfs -mkdir -p /usr/local/hadoop/input` 
+1. Criar uma pasta no hdfs para inserir os inputs: `$HADOOP_HOME/bin/hadoop dfs -mkdir -p /usr/local/hadoop/input` 
 
-2. Copia os arquivos de um path local para o hdfs: `-copyFromLocal /home/caiogranero/workspace/analyses-weather-information/input-teste/* /usr/local/hadoop/input` 
+2. Copia os arquivos de um path local para o hdfs: `$HADOOP_HOME/bin/hadoop dfs -copyFromLocal /home/caiogranero/workspace/analyses-weather-information/input-teste/* /usr/local/hadoop/input` 
 
 3. Executar .jar `$HADOOP_HOME/bin/hadoop jar /home/caiogranero/workspace/analyses-weather-information/analyses-weather.jar`
 
@@ -33,4 +33,7 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 ## Outras coisas
 
 * Listar todas as pastas dentro do input `$HADOOP_HOME/bin/hadoop fs -ls /usr/local/hadoop/input`
-
+* http://junaedhalim.blogspot.com.br/2009/12/how-to-embed-jfreechart-in-jpanel.html
+* http://www.jfree.org/jfreechart/download.html
+* https://www.javatpoint.com/java-jbutton
+* https://stackoverflow.com/questions/7945565/add-a-jfreechart-in-to-jpanel
