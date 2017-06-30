@@ -2,7 +2,8 @@ package analyses;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
@@ -37,7 +38,7 @@ public class AnalysesWeather extends Configured implements Tool {
         //Setting configuration object with the Data Type of output Key and Value
         conf.setOutputKeyClass(Text.class);
         conf.setOutputValueClass(DoubleWritable.class);
-        
+                
         //Send some variable to map function
         conf.setInt("metricPosition", getMetric());
         conf.setInt("aggregationFirstPosition", getAggregation()[0]);
@@ -45,7 +46,10 @@ public class AnalysesWeather extends Configured implements Tool {
         
         //Providing the mapper and reducer class names
         conf.setMapperClass(AnalysesWeatherMap.class);
-        conf.setReducerClass(AnalysesWeatherReduce.class);
+        
+        conf.setReducerClass(AnalysesWeatherAvgReduce.class);
+        
+        conf.setReducerClass(AnalysesWeatherStandardDeviationReduce.class);
         
         //Set hadoop input path
         String root = "/usr/local/hadoop/input/";
@@ -67,6 +71,7 @@ public class AnalysesWeather extends Configured implements Tool {
 	    }
 	   
         JobClient.runJob(conf);
+        
         return 0;
     }
 

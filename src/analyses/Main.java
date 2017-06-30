@@ -5,6 +5,8 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.ToolRunner;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -14,6 +16,9 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import javax.swing.JRadioButton;
 
 public class Main {
@@ -44,13 +49,29 @@ public class Main {
 	public Main(String[] args) {
 		initialize(args);
 	}
+	
+	public void readHdfs(){
+        try{
+            Path pt=new Path("hdfs://localhost:9000/usr/local/hadoop/output/part-00000");
+            FileSystem fs = FileSystem.get(new Configuration());
+            BufferedReader br=new BufferedReader(new InputStreamReader(fs.open(pt)));
+            String line;
+            line=br.readLine();
+            while (line != null){
+                    System.out.println(line);
+                    line=br.readLine();
+            }
+        }catch(Exception e){
+        	
+		}
+	}
 
 	/**
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize(String[] args) {
 		frame = new JFrame();
-		frame.setBounds(300, 300, 800, 400);
+		frame.setBounds(300, 300, 1200, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -71,6 +92,16 @@ public class Main {
 		JLabel lblAnoInicial = new JLabel("Ano inicial");
 		lblAnoInicial.setBounds(12, 27, 105, 15);
 		frame.getContentPane().add(lblAnoInicial);
+		
+		/**
+		 ***************************************
+		 * Creating metric radion buttons *
+		 ***************************************
+		 */
+		
+		JLabel lblEscolhaACaracterstica = new JLabel("Escolha a característica que será analisada");
+		lblEscolhaACaracterstica.setBounds(12, 85, 332, 15);
+		frame.getContentPane().add(lblEscolhaACaracterstica);
 		
 		JRadioButton rdbtnTemperatura = new JRadioButton("Temperatura");
 		rdbtnTemperatura.setBounds(12, 108, 149, 23);
@@ -93,24 +124,32 @@ public class Main {
 		frame.getContentPane().add(rdbtnSLP);
 		
 		JRadioButton rdbtnWDSP = new JRadioButton("WDSP");
-		rdbtnWDSP.setBounds(8, 243, 149, 23);
+		rdbtnWDSP.setBounds(12, 244, 149, 23);
 		frame.getContentPane().add(rdbtnWDSP);
 		
-		ButtonGroup bgAgg = new ButtonGroup();
-		bgAgg.add(rdbtnTemperatura);
-		bgAgg.add(rdbtnTemperaturaMxima);
-		bgAgg.add(rdbtnTemperaturaMnima);
-		bgAgg.add(rdbtnVisibilidade);
-		bgAgg.add(rdbtnSLP);
-		bgAgg.add(rdbtnWDSP);
+		JRadioButton rdbtnGUST = new JRadioButton("GUST");
+		rdbtnGUST.setBounds(12, 271, 149, 23);
+		frame.getContentPane().add(rdbtnGUST);
 		
-		JLabel lblEscolhaACaracterstica = new JLabel("Escolha a característica que será analisada");
-		lblEscolhaACaracterstica.setBounds(12, 112, 70, 15);
-		frame.getContentPane().add(lblEscolhaACaracterstica);
+		JRadioButton rdbtnSTP = new JRadioButton("STP");
+		rdbtnSTP.setBounds(12, 298, 149, 23);
+		frame.getContentPane().add(rdbtnSTP);
 		
-		JLabel lblAtributoQueSer = new JLabel("Atributo que será gerado as estatísticas");
-		lblAtributoQueSer.setBounds(12, 85, 304, 15);
-		frame.getContentPane().add(lblAtributoQueSer);
+		ButtonGroup bgMetric = new ButtonGroup();
+		bgMetric.add(rdbtnTemperatura);
+		bgMetric.add(rdbtnTemperaturaMxima);
+		bgMetric.add(rdbtnTemperaturaMnima);
+		bgMetric.add(rdbtnVisibilidade);
+		bgMetric.add(rdbtnSLP);
+		bgMetric.add(rdbtnWDSP);
+		bgMetric.add(rdbtnGUST);
+		bgMetric.add(rdbtnSTP);
+		
+		/**
+		 ***************************************
+		 * Creating aggregation radion buttons *
+		 ***************************************
+		 */
 			
 		JLabel lblAtributoDeAgregao = new JLabel("Atributo de agregação");
 		lblAtributoDeAgregao.setBounds(385, 85, 171, 15);
@@ -132,11 +171,11 @@ public class Main {
 		rdbtnAno.setBounds(385, 204, 149, 23);
 		frame.getContentPane().add(rdbtnAno);
 		
-		ButtonGroup bgMetric = new ButtonGroup();
-		bgMetric.add(rdbtnDia);
-		bgMetric.add(rdbtnDiams);
-		bgMetric.add(rdbtnMs);
-		bgMetric.add(rdbtnAno);
+		ButtonGroup bgAggregation = new ButtonGroup();
+		bgAggregation.add(rdbtnDia);
+		bgAggregation.add(rdbtnDiams);
+		bgAggregation.add(rdbtnMs);
+		bgAggregation.add(rdbtnAno);
 		
 		JButton btnGerarRelatrio = new JButton("Gerar relatório");
 		
@@ -172,6 +211,10 @@ public class Main {
 					metric = 7;
 				} else if(rdbtnWDSP.isSelected()){
 					metric = 13;
+				} else if(rdbtnGUST.isSelected()){
+					metric = 16;
+				} else if(rdbtnSTP.isSelected()){
+					metric = 9;
 				} else {
 					JOptionPane.showMessageDialog(btnGerarRelatrio, "Parece que você não preencheu um atributo de métrica, selecione um.","Atenção!", 0);
 					return;
@@ -204,7 +247,9 @@ public class Main {
 			}
 		});
 		
-		btnGerarRelatrio.setBounds(276, 242, 162, 25);
+		btnGerarRelatrio.setBounds(270, 335, 162, 25);
 		frame.getContentPane().add(btnGerarRelatrio);
 	}
+	
+	
 }

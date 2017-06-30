@@ -14,9 +14,9 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 
 2. Depois, iniciar o start-dfs.sh: `$HADOOP_HOME/sbin/start-dfs.sh`
 
-3. Para criar uma pasta no hdfs para inserir os inputs: `dfs -mkdir -p /usr/local/hadoop/input` 
+3. Para criar uma pasta no hdfs para inserir os inputs: `$HADOOP_HOME/bin/hadoop dfs -mkdir -p /usr/local/hadoop/input` 
 
-4. Copia os arquivos de um path local para o hdfs: `-copyFromLocal /home/caiogranero/workspace/analyses-weather-information/input-teste/* /usr/local/hadoop/input` 
+4. Copia os arquivos de um path local para o hdfs: `$HADOOP_HOME/bin/hadoop dfs -copyFromLocal /home/caiogranero/workspace/analyses-weather-information/input-teste/* /usr/local/hadoop/input` 
 
 5. Executar .jar `$HADOOP_HOME/bin/hadoop jar /home/caiogranero/workspace/analyses-weather-information/analyses-weather.jar`
 
