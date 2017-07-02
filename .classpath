@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="/usr/local/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.8.0.jar"/>
 	<classpathentry kind="lib" path="/home/caiogranero/workspace/analyses-weather-information/libs/jcommon-1.0.23.jar"/>
 	<classpathentry kind="lib" path="/home/caiogranero/workspace/analyses-weather-information/libs/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="/home/caiogranero/Downloads/commons-math3-3.6.1/commons-math3-3.6.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

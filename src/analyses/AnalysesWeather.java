@@ -19,6 +19,7 @@ public class AnalysesWeather extends Configured implements Tool {
 	private int[] aggregation;
 	private JobConf confAvg;
 	private JobConf confStandard;
+	
 	/**
 	 * 
 	 * @param dateTo
@@ -37,7 +38,7 @@ public class AnalysesWeather extends Configured implements Tool {
 		this.metric = metric;
 	}
 
-	public void setAvgJob() throws IOException{
+	public void runAvgJob() throws IOException{
 		// creating a JobConf object and assigning a job name for identification purposes
 		getConfAvg().setJobName("AnalysesWeatherAvg");
 	
@@ -74,26 +75,8 @@ public class AnalysesWeather extends Configured implements Tool {
 		// Define output folder
 		FileOutputFormat.setOutputPath(getConfAvg(), out);
 	}
-	
-	
-	public int run(String[] args) throws Exception {
 
-		// creating a JobConf object and assigning a job name for identification purposes
-		this.confAvg = new JobConf(getConf(), AnalysesWeather.class);		
-		setAvgJob();
-		
-		// creating a JobConf object and assigning a job name for identification purposes
-		this.confStandard = new JobConf(getConf(), AnalysesWeather.class);				
-		setAvgStandard();
-
-		JobClient.runJob(getConfAvg());
-		JobClient.runJob(getConfStandard());
-
-		return 0;
-	}
-
-	private void setAvgStandard() throws IOException {
-		// TODO Auto-generated method stub
+	private void runStandardDeviationJob() throws IOException {
 		// creating a JobConf object and assigning a job name for identification purposes
 		getConfStandard().setJobName("AnalysesWeatherStd");
 	
@@ -131,6 +114,22 @@ public class AnalysesWeather extends Configured implements Tool {
 		FileOutputFormat.setOutputPath(getConfStandard(), out);
 	}
 
+	public int run(String[] args) throws Exception {
+
+		// creating a JobConf object and assigning a job name for identification purposes
+		this.confAvg = new JobConf(getConf(), AnalysesWeather.class);		
+		runAvgJob();
+		
+		// creating a JobConf object and assigning a job name for identification purposes
+		this.confStandard = new JobConf(getConf(), AnalysesWeather.class);				
+		runStandardDeviationJob();
+
+		JobClient.runJob(getConfAvg());
+		JobClient.runJob(getConfStandard());
+
+		return 0;
+	}
+	
 	public int[] getAggregation() {
 		return aggregation;
 	}

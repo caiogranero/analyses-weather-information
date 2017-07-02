@@ -15,9 +15,6 @@ import org.apache.hadoop.mapred.Reporter;
 public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWritable, Text, Text, DoubleWritable> {
 
 	private static int YEARMODA = 2;
-
-	private DoubleWritable metric = new DoubleWritable();
-	private Text aggregation = new Text();
 	private boolean isHeader = true;
 	private int metricPosition, aggregationFirstPosition, aggregationLastPosition;
 	private boolean canUse = true; // if have a invalid number in dataset, don't
@@ -50,6 +47,9 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 	public void map(LongWritable key, Text value, OutputCollector<Text, DoubleWritable> output, Reporter reporter)
 			throws IOException {
 
+		DoubleWritable metric = new DoubleWritable();
+		Text aggregation = new Text();
+		
 		// read one line per time
 		String line = value.toString();
 		StringTokenizer tokenizer = new StringTokenizer(line);
@@ -64,7 +64,7 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 
 				// Check if the current column index are the date column
 				if (iColumn == YEARMODA) { //
-					setAggregation(token.substring(getAggregationFirstPosition(), getAggregationLastPosition()));
+					aggregation.set(token.substring(getAggregationFirstPosition(), getAggregationLastPosition()));
 				}
 
 				// Check if the current column index are the param column
@@ -77,7 +77,7 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 					}
 
 					try {
-						setMetric(checkMissing(Double.parseDouble(token)));
+						metric.set(checkMissing(Double.parseDouble(token)));
 					} catch (NumberFormatException e) {
 						setCanUse(false);
 						return;
@@ -90,7 +90,7 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 
 			// Validate if the current line is a validate number
 			if (isCanUse()) {
-				output.collect(getAggregation(), getMetric());
+				output.collect(aggregation, metric);
 			} else {
 				setCanUse(true);
 			}
@@ -98,22 +98,6 @@ public class AnalysesWeatherMap extends MapReduceBase implements Mapper<LongWrit
 		} else {
 			setHeader(false);
 		}
-	}
-
-	public DoubleWritable getMetric() {
-		return metric;
-	}
-
-	public void setMetric(Double metric) {
-		this.metric.set(metric);
-	}
-
-	public Text getAggregation() {
-		return aggregation;
-	}
-
-	public void setAggregation(String string) {
-		this.aggregation.set(string);
 	}
 
 	public boolean isHeader() {

@@ -37,7 +37,4 @@ Para corrigir erros de dependência do Hadoop no eclipse, vá em `Project -> Pro
 ## Outras coisas
 
 * Listar todas as pastas dentro do input `$HADOOP_HOME/bin/hadoop fs -ls /usr/local/hadoop/input`
-* http://junaedhalim.blogspot.com.br/2009/12/how-to-embed-jfreechart-in-jpanel.html
-* http://www.jfree.org/jfreechart/download.html
-* https://www.javatpoint.com/java-jbutton
-* https://stackoverflow.com/questions/7945565/add-a-jfreechart-in-to-jpanel
+* http://commons.apache.org/proper/commons-math/javadocs/api-3.3/org/apache/commons/math3/stat/regression/SimpleRegression.html

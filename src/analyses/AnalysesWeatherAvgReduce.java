@@ -12,24 +12,28 @@ import org.apache.hadoop.mapred.Reporter;
 
 public class AnalysesWeatherAvgReduce extends MapReduceBase
 		implements Reducer<Text, DoubleWritable, Text, DoubleWritable> {
-	public void reduce(Text key, Iterator<DoubleWritable> values, OutputCollector<Text, DoubleWritable> output,
-			Reporter reporter) throws IOException {
+	
+	/*
+	 * iterates through all the values available with a key and add them
+	 * together and give the final result as the key and sum of its values
+	 */
+	private double getAverage(Iterator<DoubleWritable> values){
 		int sum = 0;
 		int qtd = 0;
-		double avg = 0;
-
-		/*
-		 * iterates through all the values available with a key and add them
-		 * together and give the final result as the key and sum of its values
-		 */
+		
 		while (values.hasNext()) {
 			sum += values.next().get();
 			qtd++;
 		}
+		
+		return sum/qtd;
+	};
+	
+	public void reduce(Text key, Iterator<DoubleWritable> values, OutputCollector<Text, DoubleWritable> output,
+			Reporter reporter) throws IOException {
 
-		avg = sum / qtd;
-
-		output.collect(key, new DoubleWritable(avg));
+		output.collect(key, new DoubleWritable(getAverage(values)));
+		
 	}
 
 }
