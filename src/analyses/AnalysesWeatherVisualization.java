@@ -24,6 +24,8 @@ public class AnalysesWeatherVisualization {
 	private JFrame frame;
 	private AnalysesWeatherChart chart;
 	private String labelAxisX, labelAxisY;
+	private int prevision, dateTo, dateFrom;
+	private boolean canMakePrevision = false;
 	
 	/**
 	 * Create the application.
@@ -49,6 +51,7 @@ public class AnalysesWeatherVisualization {
 			Path pt = new Path("hdfs://localhost:9000/usr/local/hadoop/output/"+type+"/part-00000");
 			FileSystem fs = FileSystem.get(new Configuration());
 			BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(pt)));
+			OrdinaryLeastSquares ols = new OrdinaryLeastSquares();
 			
 			// read one line per time
 			for (String line = br.readLine(); line != null; line = br.readLine()) {
@@ -59,12 +62,21 @@ public class AnalysesWeatherVisualization {
 				String category = tokenizer.nextToken();
 				double value = Double.parseDouble(tokenizer.nextToken());
 				
+				ols.getSimpleRegression().addData(Double.parseDouble(category), value);
+				
 				//Insert axis labels
 		        getChart().getFreeChart().getCategoryPlot().getRangeAxis().setAttributedLabel(getLabelAxisY());
 		        getChart().getFreeChart().getCategoryPlot().getDomainAxis().setAttributedLabel(getLabelAxisX());
-				
+		        
 				// Insert data in graph
 				getChart().newPoint(value, series, category); 
+			}			
+			
+			if(isCanMakePrevision()){
+				//This for, calculate the defined futures points
+				for(int i = getDateFrom()+1; i <= getPrevision(); i++){
+					getChart().newPoint(ols.getFutureY(i), series + " previsão", Integer.toString(i));
+				}
 			}
 			
 		} catch (Exception e) {
@@ -90,7 +102,12 @@ public class AnalysesWeatherVisualization {
 		txtAnoFinal.setBounds(362, 25, 114, 19);
 		getFrame().getContentPane().add(txtAnoFinal);
 		txtAnoFinal.setColumns(10);
-		        
+
+		JTextField txtPrevisao = new JTextField();
+		txtPrevisao.setBounds(730, 25, 114, 19);
+		frame.getContentPane().add(txtPrevisao);
+		txtPrevisao.setColumns(10);
+		
 		JLabel lblAnoFinal = new JLabel("Ano final");
 		lblAnoFinal.setBounds(274, 27, 70, 15);
 		getFrame().getContentPane().add(lblAnoFinal);
@@ -99,6 +116,10 @@ public class AnalysesWeatherVisualization {
 		lblAnoInicial.setBounds(12, 27, 105, 15);
 		getFrame().getContentPane().add(lblAnoInicial);
 
+		JLabel lblDataFim = new JLabel("Último ano da previsão");
+		lblDataFim.setBounds(549, 27, 163, 15);
+		frame.getContentPane().add(lblDataFim);
+		
 		/**
 		 ***************************************
 		 * Creating metric radion buttons *
@@ -125,19 +146,19 @@ public class AnalysesWeatherVisualization {
 		rdbtnVisibilidade.setBounds(12, 180, 149, 23);
 		getFrame().getContentPane().add(rdbtnVisibilidade);
 
-		JRadioButton rdbtnSLP= new JRadioButton("SLP");
+		JRadioButton rdbtnSLP= new JRadioButton("Pressão do mar");
 		rdbtnSLP.setBounds(12, 205, 149, 23);
 		getFrame().getContentPane().add(rdbtnSLP);
 
-		JRadioButton rdbtnWDSP = new JRadioButton("WDSP");
+		JRadioButton rdbtnWDSP = new JRadioButton("Humidade");
 		rdbtnWDSP.setBounds(12, 230, 149, 23);
 		getFrame().getContentPane().add(rdbtnWDSP);
 
-		JRadioButton rdbtnGUST = new JRadioButton("GUST");
+		JRadioButton rdbtnGUST = new JRadioButton("Rajada de vento");
 		rdbtnGUST.setBounds(12, 255, 149, 23);
 		getFrame().getContentPane().add(rdbtnGUST);
 
-		JRadioButton rdbtnSTP = new JRadioButton("STP");
+		JRadioButton rdbtnSTP = new JRadioButton("Pressão");
 		rdbtnSTP.setBounds(12, 280, 149, 23);
 		getFrame().getContentPane().add(rdbtnSTP);
 
@@ -165,21 +186,16 @@ public class AnalysesWeatherVisualization {
 		rdbtnDia.setBounds(12, 355, 149, 23);
 		getFrame().getContentPane().add(rdbtnDia);
 
-		JRadioButton rdbtnDiams = new JRadioButton("Dia/Mês");
-		rdbtnDiams.setBounds(12, 380, 149, 23);
-		getFrame().getContentPane().add(rdbtnDiams);
-
 		JRadioButton rdbtnMs = new JRadioButton("Mês");
-		rdbtnMs.setBounds(12, 405, 149, 23);
+		rdbtnMs.setBounds(12, 380, 149, 23);
 		getFrame().getContentPane().add(rdbtnMs);
 
 		JRadioButton rdbtnAno = new JRadioButton("Ano");
-		rdbtnAno.setBounds(12, 430, 149, 23);
+		rdbtnAno.setBounds(12, 405, 149, 23);
 		getFrame().getContentPane().add(rdbtnAno);
 		
 		ButtonGroup bgAggregation = new ButtonGroup();
 		bgAggregation.add(rdbtnDia);
-		bgAggregation.add(rdbtnDiams);
 		bgAggregation.add(rdbtnMs);
 		bgAggregation.add(rdbtnAno);
 		
@@ -192,19 +208,39 @@ public class AnalysesWeatherVisualization {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 
-				int dateTo = -1;
-				int dateFrom = -1;
 				int metric = -1;
-
+				int dateTo, dateFrom, prevision;
+				
 				int[] aggregation = new int[2];
 
 				try {
+					
 					dateTo = Integer.parseInt(txtAnoInicial.getText());
 					dateFrom = Integer.parseInt(txtAnoFinal.getText());
+					if (!rdbtnAno.isSelected()) {
+						prevision = Integer.parseInt(txtAnoFinal.getText());
+					} else {
+						prevision = Integer.parseInt(txtPrevisao.getText());
+					}
+					
 				} catch (NumberFormatException e) {
 					JOptionPane.showMessageDialog(btnGerarRelatrio,
 							"Você digitou um ano inválido. Digite novamente, por favor.", "Atenção!", 0);
 					return;
+				}
+				
+				if(dateTo > dateFrom){
+					JOptionPane.showMessageDialog(btnGerarRelatrio,
+							"Você digitou o ano final maior do que o inicial. Digite novamente, por favor.", "Atenção!", 0);
+					return;
+				} else if(dateFrom > prevision){
+					JOptionPane.showMessageDialog(btnGerarRelatrio,
+							"Você digitou o ano de previsão menor do que o ano final. Digite novamente, por favor.", "Atenção!", 0);
+					return;
+				} else {
+					setDateTo(dateTo);
+					setDateFrom(dateFrom);
+					setPrevision(prevision);
 				}
 
 				if (rdbtnTemperatura.isSelected()) {
@@ -233,36 +269,34 @@ public class AnalysesWeatherVisualization {
 					setLabelAxisY("STP");
 				} else {
 					JOptionPane.showMessageDialog(btnGerarRelatrio,
-							"Parece que você não preencheu um atributo de métrica, selecione um.", "Atenção!", 0);
+							"Parece que você não preencheu um atributo de métrica, por favor selecione um.", "Atenção!", 0);
 					return;
 				}
 
-				if (rdbtnDia.isSelected()) { //Dia
+				if (rdbtnDia.isSelected()) {
 					aggregation[0] = 6;
 					aggregation[1] = 8;
 					setLabelAxisX("Dia");
-				} else if (rdbtnDiams.isSelected()) {
-					aggregation[0] = 4;
-					aggregation[1] = 8;
-					setLabelAxisX("Dia/Mês");
 				} else if (rdbtnMs.isSelected()) {
-					aggregation[0] = 6;
-					aggregation[1] = 8;
+					aggregation[0] = 4;
+					aggregation[1] = 6;
 					setLabelAxisX("Mês");
 				} else if (rdbtnAno.isSelected()) {
 					aggregation[0] = 0;
 					aggregation[1] = 4;
 					setLabelAxisX("Ano");
+					setCanMakePrevision(true);
 				} else {
 					JOptionPane.showMessageDialog(btnGerarRelatrio,
-							"Parece que você não preencheu um parametro de agregação, selecione um.", "Atenção!", 0);
+							"Parece que você não preencheu um parametro de agregação, por favor selecione um.", "Atenção!", 0);
 					return;
 				}
 
 				try {
 					
+					//Run Hadoop, run!
 					ToolRunner.run(new Configuration(),
-							new AnalysesWeather(dateTo, dateFrom, metric, aggregation), args);
+							new AnalysesWeather(getDateTo(), getDateFrom(), metric, aggregation), args);
 					
 					//Clear graph content, this make possible to run more than one time.
 					getChart().getDataset().clear();
@@ -271,13 +305,12 @@ public class AnalysesWeatherVisualization {
 					readHdfsOutput("std");
 					
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		});
 
-		btnGerarRelatrio.setBounds(568, 22, 140, 25);
+		btnGerarRelatrio.setBounds(930, 22, 140, 25);
 		getFrame().getContentPane().add(btnGerarRelatrio);
 	}
 
@@ -309,4 +342,35 @@ public class AnalysesWeatherVisualization {
 		this.labelAxisY = labelAxisY;
 	}
 
+	public int getPrevision() {
+		return prevision;
+	}
+
+	public void setPrevision(int prevision) {
+		this.prevision = prevision;
+	}
+
+	public int getDateTo() {
+		return dateTo;
+	}
+
+	public void setDateTo(int dateTo) {
+		this.dateTo = dateTo;
+	}
+
+	public int getDateFrom() {
+		return dateFrom;
+	}
+
+	public void setDateFrom(int dateFrom) {
+		this.dateFrom = dateFrom;
+	}
+
+	public boolean isCanMakePrevision() {
+		return canMakePrevision;
+	}
+
+	public void setCanMakePrevision(boolean canMakePrevision) {
+		this.canMakePrevision = canMakePrevision;
+	}
 }
