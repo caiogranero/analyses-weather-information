@@ -75,7 +75,7 @@ public class AnalysesWeatherVisualization {
 			if(isCanMakePrevision()){
 				//This for, calculate the defined futures points
 				for(int i = getDateFrom()+1; i <= getPrevision(); i++){
-					getChart().newPoint(ols.getFutureY(i), series + " previsão", Integer.toString(i));
+					getChart().newPoint(ols.getFutureY(i), series, Integer.toString(i));
 				}
 			}
 			

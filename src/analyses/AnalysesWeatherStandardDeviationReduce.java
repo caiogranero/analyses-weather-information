@@ -48,16 +48,17 @@ public class AnalysesWeatherStandardDeviationReduce extends MapReduceBase
 
 		while (values.hasNext()) {
 			sumVariance += Math.pow((values.next().get() - average.get(Integer.parseInt(key.toString()))), 2);
+			qtt++;
 		}
-
+		
 		variance = sumVariance / (qtt-1);
-
+		
 		/**
 		 * Generate the standard deviation.
 		 */
 
 		double standardDeviation = Math.sqrt(variance);
-
+		
 		output.collect(key, new DoubleWritable(standardDeviation));
 	}
 }
